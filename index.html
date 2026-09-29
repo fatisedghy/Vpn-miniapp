@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <title>VPN Store</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+    select, button {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #2ea6ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    h2 {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Buy VPN Account</h1>
+
+  <label>Country:</label>
+  <select id="country">
+    <option value="Poland">Poland</option>
+    <option value="Netherlands">Netherlands</option>
+    <option value="Germany">Germany</option>
+    <option value="Turkey">Turkey</option>
+    <option value="Finland">Finland</option>
+  </select>
+
+  <br><br>
+
+  <label>Months:</label>
+  <select id="months">
+    <option value="1">1</option>
+    <option value="3">3</option>
+    <option value="6">6</option>
+    <option value="12">12</option>
+  </select>
+
+  <br><br>
+
+  <label>Data (GB):</label>
+  <select id="gb">
+    <option value="10">10</option>
+    <option value="30">30</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+
+  <br><br>
+
+  <h2>Total Price: <span id="price">0</span> Toman</h2>
+
+  <button onclick="calculatePrice()">Calculate</button>
+
+  <script>
+    const pricePerMonth = 50000;
+    const pricePerGB = 3000;
+
+    function calculatePrice() {
+      const months = parseInt(document.getElementById("months").value);
+      const gb = parseInt(document.getElementById("gb").value);
+      const total = (months * pricePerMonth) + (gb * pricePerGB);
+      document.getElementById("price").textContent = total;
+    }
+  </script>
+</body>
+</html>
