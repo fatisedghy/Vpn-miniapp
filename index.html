@@ -5,122 +5,256 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <title>VPN Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
+    :root {
+      --bg: #0b0e14;
+      --surface: #131820;
+      --border: #232a35;
+      --text: #edf0f3;
+      --muted: #8891a0;
+      --accent: #35e0c0;
+      --accent-dim: rgba(53, 224, 192, 0.12);
+      --danger: #ff6b6b;
+    }
     body {
-      font-family: -apple-system, sans-serif;
-      background-color: #f4f6f8;
-      padding: 20px;
+      font-family: 'Vazirmatn', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       margin: 0;
+      padding: 24px 18px;
+      min-height: 100vh;
     }
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-      max-width: 400px;
-      margin: 0 auto;
+    .wrap { max-width: 400px; margin: 0 auto; }
+
+    #lang-screen { text-align: center; padding-top: 60px; }
+    .mark {
+      width: 56px; height: 56px; margin: 0 auto 18px;
+      border-radius: 16px; background: var(--accent-dim);
+      display: flex; align-items: center; justify-content: center;
     }
-    h1 { font-size: 22px; margin-bottom: 20px; color: #1a1a1a; }
-    .field { margin-bottom: 16px; }
-    label { display: block; font-size: 14px; color: #666; margin-bottom: 6px; }
-    select {
-      width: 100%; padding: 12px; font-size: 16px;
-      border-radius: 10px; border: 1px solid #ddd; background: #fafafa;
+    .mark svg { width: 26px; height: 26px; }
+    #lang-screen h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+    #lang-screen p { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+    .lang-btn {
+      width: 100%; padding: 14px; margin-bottom: 10px;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text);
+      font-size: 15px; font-family: inherit; cursor: pointer;
     }
-    .price-box {
-      background: #eef6ff; border-radius: 12px; padding: 16px;
-      text-align: center; margin: 20px 0;
+
+    #name-screen, #main-screen { display: none; }
+    .status {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--muted); font-size: 13px; margin-bottom: 16px;
     }
-    .price-box .label { font-size: 13px; color: #666; }
-    .price-box .amount { font-size: 26px; font-weight: bold; color: #2ea6ff; }
-    button {
-      width: 100%; padding: 14px; font-size: 16px; font-weight: bold;
-      border-radius: 12px; border: none; background-color: #2ea6ff;
-      color: white; cursor: pointer; margin-bottom: 10px;
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
     }
-    .lang-btn { background: #f0f0f0; color: #333; margin-bottom: 8px; }
-    #main-screen { display: none; }
-    .rtl { direction: rtl; text-align: right; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    .greeting { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+    h1.title { font-size: 24px; font-weight: 700; margin: 0 0 18px; }
+
+    .wallet {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 20px; background: var(--surface);
+    }
+    .wallet .balance-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .wallet .balance-amount { font-size: 18px; font-weight: 700; }
+    .wallet button {
+      padding: 8px 14px; border-radius: 10px; border: 1px solid var(--accent);
+      background: transparent; color: var(--accent); font-family: inherit;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .topup-row { display: none; gap: 8px; margin: -8px 0 20px; }
+    .topup-row input {
+      flex: 1; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text); font-family: inherit; font-size: 14px;
+    }
+    .topup-row button {
+      padding: 0 16px; border-radius: 10px; border: none;
+      background: var(--accent); color: #06231e; font-weight: 600; font-family: inherit; cursor: pointer;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .select-wrap { position: relative; }
+    select, input[type=text], input[type=number] {
+      width: 100%; padding: 14px 16px; font-size: 15px;
+      border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text);
+      font-family: inherit; appearance: none;
+    }
+    select { padding-inline-end: 40px; }
+    .select-wrap svg {
+      position: absolute; top: 50%; inset-inline-end: 14px;
+      transform: translateY(-50%); width: 16px; height: 16px;
+      pointer-events: none; color: var(--muted);
+    }
+    input::placeholder { color: var(--muted); }
+    select:focus, input:focus { outline: none; border-color: var(--accent); }
+
+    .price-panel {
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 22px; text-align: center; margin: 22px 0;
+      background: linear-gradient(180deg, var(--accent-dim), transparent);
+    }
+    .price-panel .label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .price-panel .amount { font-size: 32px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+    .price-panel .unit { font-size: 14px; color: var(--muted); font-weight: 500; }
+
+    button.primary {
+      width: 100%; padding: 15px; font-size: 15px; font-weight: 600;
+      border-radius: 12px; border: none; background: var(--accent);
+      color: #06231e; font-family: inherit; cursor: pointer;
+    }
+    .msg { font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
+    .msg.error { color: var(--danger); }
+    .msg.success { color: var(--accent); }
+
+    .rtl { direction: rtl; }
   </style>
 </head>
 <body>
+  <div class="wrap">
 
-  <div class="card" id="lang-screen">
-    <h1>🌍 Choose your language</h1>
-    <button class="lang-btn" onclick="setLanguage('en')">English</button>
-    <button class="lang-btn" onclick="setLanguage('fa')">فارسی</button>
-  </div>
-
-  <div class="card" id="main-screen">
-    <h1 id="title">Buy VPN Account</h1>
-
-    <div class="field">
-      <label id="label-country">Country</label>
-      <select id="country">
-        <option value="Poland">Poland</option>
-        <option value="Netherlands">Netherlands</option>
-        <option value="Germany">Germany</option>
-        <option value="Turkey">Turkey</option>
-        <option value="Finland">Finland</option>
-      </select>
+    <div id="lang-screen">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#35e0c0" stroke-width="2">
+          <path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/>
+        </svg>
+      </div>
+      <h1>VPN Store</h1>
+      <p>Choose your language</p>
+      <button class="lang-btn" onclick="setLanguage('en')">English</button>
+      <button class="lang-btn" onclick="setLanguage('fa')">فارسی</button>
     </div>
 
-    <div class="field">
-      <label id="label-months">Months</label>
-      <select id="months">
-        <option value="1">1</option>
-        <option value="3">3</option>
-        <option value="6">6</option>
-        <option value="12">12</option>
-      </select>
+    <div id="name-screen">
+      <div class="status"><span class="dot"></span><span id="status-text">Secure connection</span></div>
+      <h1 class="title" id="name-title">What is your name?</h1>
+      <div class="field">
+        <input type="text" id="user-name" placeholder="">
+      </div>
+      <button class="primary" onclick="submitName()" id="btn-name-continue">Continue</button>
     </div>
 
-    <div class="field">
-      <label id="label-gb">Data (GB)</label>
-      <select id="gb">
-        <option value="10">10</option>
-        <option value="30">30</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-      </select>
+    <div id="main-screen">
+      <div class="status"><span class="dot"></span><span id="status-text-2">Secure connection</span></div>
+
+      <div class="greeting" id="greeting"></div>
+
+      <div class="wallet">
+        <div>
+          <div class="balance-label" id="wallet-label">Wallet Balance</div>
+          <div class="balance-amount"><span id="wallet-amount">0</span> <span id="wallet-unit">Toman</span></div>
+        </div>
+        <button onclick="toggleTopup()" id="btn-topup">+</button>
+      </div>
+
+      <div class="topup-row" id="topup-row">
+        <input type="number" id="topup-input" placeholder="0" min="0">
+        <button onclick="topUp()" id="btn-topup-confirm">+</button>
+      </div>
+
+      <h1 class="title" id="title">Buy VPN Account</h1>
+
+      <div class="field">
+        <label id="label-country">Country</label>
+        <div class="select-wrap">
+          <select id="country">
+            <option value="Poland">🇵🇱 Poland</option>
+            <option value="Netherlands">🇳🇱 Netherlands</option>
+            <option value="Germany">🇩🇪 Germany</option>
+            <option value="Turkey">🇹🇷 Turkey</option>
+            <option value="Finland">🇫🇮 Finland</option>
+          </select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="field">
+        <label id="label-months">Months</label>
+        <input type="number" id="months" value="1" min="1" max="36">
+      </div>
+
+      <div class="field">
+        <label id="label-gb">Data (GB)</label>
+        <input type="number" id="gb" value="10" min="1" max="1000">
+      </div>
+
+      <div class="price-panel">
+        <div class="label" id="label-total">Total Price</div>
+        <div class="amount"><span id="price">0</span></div>
+        <div class="unit" id="label-toman">Toman</div>
+      </div>
+
+      <button class="primary" onclick="buyNow()" id="btn-calc">Calculate</button>
+      <div class="msg" id="buy-msg"></div>
     </div>
 
-    <div class="price-box">
-      <div class="label" id="label-total">Total Price</div>
-      <div class="amount"><span id="price">0</span> <span id="label-toman">Toman</span></div>
-    </div>
-
-    <button onclick="calculatePrice()" id="btn-calc">Calculate</button>
   </div>
 
   <script>
     const pricePerMonth = 50000;
     const pricePerGB = 3000;
+    let walletBalance = 0;
+    let userName = "";
 
     const texts = {
       en: {
+        status: "Secure connection",
         title: "Buy VPN Account",
         country: "Country",
         months: "Months",
         gb: "Data (GB)",
         total: "Total Price",
         toman: "Toman",
-        calc: "Calculate"
+        calc: "Calculate",
+        nameTitle: "What is your name?",
+        namePlaceholder: "Enter your name",
+        continueBtn: "Continue",
+        walletLabel: "Wallet Balance",
+        insufficient: "Insufficient balance. Please top up.",
+        purchased: "Purchase successful!",
+        hi: "Hi"
       },
       fa: {
+        status: "اتصال امن",
         title: "خرید اکانت وی‌پی‌ان",
         country: "کشور",
         months: "تعداد ماه",
         gb: "حجم (گیگابایت)",
         total: "قیمت کل",
         toman: "تومان",
-        calc: "محاسبه"
+        calc: "محاسبه",
+        nameTitle: "نام شما چیست؟",
+        namePlaceholder: "نام خود را وارد کنید",
+        continueBtn: "ادامه",
+        walletLabel: "موجودی کیف پول",
+        insufficient: "موجودی کافی نیست. لطفاً شارژ کنید.",
+        purchased: "خرید با موفقیت انجام شد!",
+        hi: "سلام"
       }
     };
 
+    let currentLang = "en";
+
     function setLanguage(lang) {
+      currentLang = lang;
       const t = texts[lang];
+
+      document.getElementById("name-title").textContent = t.nameTitle;
+      document.getElementById("user-name").placeholder = t.namePlaceholder;
+      document.getElementById("btn-name-continue").textContent = t.continueBtn;
+      document.getElementById("status-text").textContent = t.status;
+      document.getElementById("status-text-2").textContent = t.status;
+
       document.getElementById("title").textContent = t.title;
       document.getElementById("label-country").textContent = t.country;
       document.getElementById("label-months").textContent = t.months;
@@ -128,16 +262,31 @@
       document.getElementById("label-total").textContent = t.total;
       document.getElementById("label-toman").textContent = t.toman;
       document.getElementById("btn-calc").textContent = t.calc;
+      document.getElementById("wallet-label").textContent = t.walletLabel;
+      document.getElementById("wallet-unit").textContent = t.toman;
 
+      const nameScreen = document.getElementById("name-screen");
       const mainScreen = document.getElementById("main-screen");
+
       if (lang === "fa") {
+        nameScreen.classList.add("rtl");
         mainScreen.classList.add("rtl");
       } else {
+        nameScreen.classList.remove("rtl");
         mainScreen.classList.remove("rtl");
       }
 
       document.getElementById("lang-screen").style.display = "none";
-      mainScreen.style.display = "block";
+      nameScreen.style.display = "block";
+    }
+
+    function submitName() {
+      const name = document.getElementById("user-name").value;
+      if (!name) return;
+      userName = name;
+      document.getElementById("greeting").textContent = texts[currentLang].hi + ", " + userName + " 👋";
+      document.getElementById("name-screen").style.display = "none";
+      document.getElementById("main-screen").style.display = "block";
     }
 
     function checkLanguageFromURL() {
@@ -147,14 +296,44 @@
         setLanguage(lang);
       }
     }
-
     checkLanguageFromURL();
 
-    function calculatePrice() {
-      const months = parseInt(document.getElementById("months").value);
-      const gb = parseInt(document.getElementById("gb").value);
-      const total = (months * pricePerMonth) + (gb * pricePerGB);
-      document.getElementById("price").textContent = total;
+    function toggleTopup() {
+      const row = document.getElementById("topup-row");
+      row.style.display = row.style.display === "flex" ? "none" : "flex";
+    }
+
+    function topUp() {
+      const amount = parseInt(document.getElementById("topup-input").value) || 0;
+      if (amount <= 0) return;
+      walletBalance += amount;
+      document.getElementById("wallet-amount").textContent = walletBalance.toLocaleString();
+      document.getElementById("topup-input").value = "";
+      document.getElementById("topup-row").style.display = "none";
+    }
+
+    function calculateTotal() {
+      const months = parseInt(document.getElementById("months").value) || 0;
+      const gb = parseInt(document.getElementById("gb").value) || 0;
+      return (months * pricePerMonth) + (gb * pricePerGB);
+    }
+
+    function buyNow() {
+      const total = calculateTotal();
+      document.getElementById("price").textContent = total.toLocaleString();
+
+      const t = texts[currentLang];
+      const msgEl = document.getElementById("buy-msg");
+
+      if (walletBalance < total) {
+        msgEl.textContent = t.insufficient;
+        msgEl.className = "msg error";
+      } else {
+        walletBalance -= total;
+        document.getElementById("wallet-amount").textContent = walletBalance.toLocaleString();
+        msgEl.textContent = t.purchased;
+        msgEl.className = "msg success";
+      }
     }
   </script>
 </body>
