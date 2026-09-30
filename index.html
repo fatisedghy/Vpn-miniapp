@@ -169,7 +169,22 @@ body{
 </head>
 <body>
 
-<div class="screen active" id="screen-home">
+<div class="screen active" id="screen-lang">
+  <div class="hero">
+    <div class="shield">🌍</div>
+    <h1>Choose your language</h1>
+    <p>زبان خود را انتخاب کنید</p>
+  </div>
+  <div style="padding:0 16px;">
+    <button class="btn ghost" style="margin-bottom:10px;" onclick="selectInitialLang('fa')">فارسی</button>
+    <button class="btn ghost" onclick="selectInitialLang('en')">English</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-home">
+  <div style="display:flex; justify-content:flex-end; padding:14px 16px 0;">
+    <button onclick="toggleLang()" id="lang-toggle-btn" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-family:inherit;font-size:12px;color:var(--text);cursor:pointer;">EN</button>
+  </div>
   <div class="hero">
     <div class="shield">🛡️</div>
     <h1 id="home-title">VPN سریع و امن</h1>
@@ -567,15 +582,34 @@ function updateAccountUI(){
   }
 }
 
-function checkLanguageFromURL(){
-  const params = new URLSearchParams(window.location.search);
-  const l = params.get("lang");
-  if (l === "fa" || l === "en") lang = l;
+function toggleLang(){
+  lang = (lang === "fa") ? "en" : "fa";
+  document.getElementById("lang-toggle-btn").textContent = (lang === "fa") ? "EN" : "فا";
+  applyTexts();
 }
 
-checkLanguageFromURL();
-applyTexts();
-updateBuyCountryRow();
+function selectInitialLang(l){
+  lang = l;
+  document.getElementById("lang-toggle-btn").textContent = (lang === "fa") ? "EN" : "فا";
+  applyTexts();
+  goTab("home");
+}
+
+function initApp(){
+  const params = new URLSearchParams(window.location.search);
+  const l = params.get("lang");
+  updateBuyCountryRow();
+  if (l === "fa" || l === "en") {
+    lang = l;
+    document.getElementById("lang-toggle-btn").textContent = (lang === "fa") ? "EN" : "فا";
+    applyTexts();
+    goTab("home");
+  } else {
+    showScreen("screen-lang");
+  }
+}
+
+initApp();
 </script>
 </body>
 </html>
