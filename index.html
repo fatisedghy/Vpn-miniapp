@@ -1,340 +1,581 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <title>VPN Store</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; }
-    :root {
-      --bg: #0b0e14;
-      --surface: #131820;
-      --border: #232a35;
-      --text: #edf0f3;
-      --muted: #8891a0;
-      --accent: #35e0c0;
-      --accent-dim: rgba(53, 224, 192, 0.12);
-      --danger: #ff6b6b;
-    }
-    body {
-      font-family: 'Vazirmatn', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 24px 18px;
-      min-height: 100vh;
-    }
-    .wrap { max-width: 400px; margin: 0 auto; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>VPN Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root{
+  --bg:#fdf9f5;
+  --surface:#ffffff;
+  --border:#f0e4d8;
+  --text:#152a56;
+  --muted:#8b93a6;
+  --accent:#ff7a30;
+  --accent-dim:#fff1e6;
+  --success:#22c55e;
+}
+body{
+  font-family:'Vazirmatn', -apple-system, sans-serif;
+  background:var(--bg); color:var(--text);
+  margin:0; padding:0 0 78px; direction:rtl;
+}
+.appbar{
+  display:flex; align-items:center; gap:10px;
+  padding:16px; position:sticky; top:0; background:var(--bg); z-index:5;
+}
+.appbar button.back{
+  width:34px; height:34px; border-radius:10px; border:none;
+  background:var(--surface); display:flex; align-items:center; justify-content:center;
+}
+.appbar h2{ font-size:16px; margin:0; }
+.screen{ display:none; padding:0 16px; }
+.screen.active{ display:block; }
 
-    #lang-screen { text-align: center; padding-top: 60px; }
-    .mark {
-      width: 56px; height: 56px; margin: 0 auto 18px;
-      border-radius: 16px; background: var(--accent-dim);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .mark svg { width: 26px; height: 26px; }
-    #lang-screen h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
-    #lang-screen p { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
-    .lang-btn {
-      width: 100%; padding: 14px; margin-bottom: 10px;
-      border-radius: 12px; border: 1px solid var(--border);
-      background: var(--surface); color: var(--text);
-      font-size: 15px; font-family: inherit; cursor: pointer;
-    }
+/* HOME */
+.hero{ text-align:center; padding:40px 20px 10px; }
+.hero .shield{
+  width:84px; height:84px; margin:0 auto 18px; border-radius:50%;
+  background:var(--accent-dim); display:flex; align-items:center; justify-content:center;
+}
+.hero h1{ font-size:20px; margin:0 0 8px; }
+.hero p{ color:var(--muted); font-size:13px; line-height:1.7; margin:0 0 26px; }
 
-    #name-screen, #main-screen { display: none; }
-    .status {
-      display: flex; align-items: center; gap: 8px;
-      color: var(--muted); font-size: 13px; margin-bottom: 16px;
-    }
-    .dot {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+/* buttons */
+.btn{
+  width:100%; padding:15px; border-radius:14px; border:none;
+  background:var(--accent); color:#fff; font-family:inherit;
+  font-size:15px; font-weight:700; cursor:pointer;
+}
+.btn.ghost{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
 
-    .greeting { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
-    h1.title { font-size: 24px; font-weight: 700; margin: 0 0 18px; }
+/* list rows */
+.row{
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:14px 16px; margin-bottom:10px; cursor:pointer;
+}
+.row .left{ display:flex; align-items:center; gap:10px; }
+.row .icon{
+  width:34px; height:34px; border-radius:10px; background:var(--accent-dim);
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.row .label{ font-size:14px; font-weight:600; }
+.row .sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+.row .chev{ color:var(--muted); }
+.row.selected{ border-color:var(--accent); }
+.radio{
+  width:20px; height:20px; border-radius:50%; border:2px solid var(--border); position:relative;
+}
+.radio.on{ border-color:var(--accent); }
+.radio.on::after{
+  content:''; position:absolute; inset:3px; border-radius:50%; background:var(--accent);
+}
 
-    .wallet {
-      display: flex; align-items: center; justify-content: space-between;
-      border: 1px solid var(--border); border-radius: 14px;
-      padding: 14px 16px; margin-bottom: 20px; background: var(--surface);
-    }
-    .wallet .balance-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-    .wallet .balance-amount { font-size: 18px; font-weight: 700; }
-    .wallet button {
-      padding: 8px 14px; border-radius: 10px; border: 1px solid var(--accent);
-      background: transparent; color: var(--accent); font-family: inherit;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-    }
-    .topup-row { display: none; gap: 8px; margin: -8px 0 20px; }
-    .topup-row input {
-      flex: 1; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
-      background: var(--surface); color: var(--text); font-family: inherit; font-size: 14px;
-    }
-    .topup-row button {
-      padding: 0 16px; border-radius: 10px; border: none;
-      background: var(--accent); color: #06231e; font-weight: 600; font-family: inherit; cursor: pointer;
-    }
+/* stepper */
+.stepper-field{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;
+}
+.stepper-field .meta{ display:flex; align-items:center; gap:10px; }
+.stepper{ display:flex; align-items:center; gap:14px; }
+.stepper button{
+  width:30px; height:30px; border-radius:8px; border:1px solid var(--border);
+  background:var(--bg); font-size:16px; font-weight:700; color:var(--accent); cursor:pointer;
+}
+.stepper .val{ min-width:46px; text-align:center; font-weight:700; }
 
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    .select-wrap { position: relative; }
-    select, input[type=text], input[type=number] {
-      width: 100%; padding: 14px 16px; font-size: 15px;
-      border-radius: 12px; border: 1px solid var(--border);
-      background: var(--surface); color: var(--text);
-      font-family: inherit; appearance: none;
-    }
-    select { padding-inline-end: 40px; }
-    .select-wrap svg {
-      position: absolute; top: 50%; inset-inline-end: 14px;
-      transform: translateY(-50%); width: 16px; height: 16px;
-      pointer-events: none; color: var(--muted);
-    }
-    input::placeholder { color: var(--muted); }
-    select:focus, input:focus { outline: none; border-color: var(--accent); }
+/* price box */
+.price-box{
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--accent-dim); border-radius:14px; padding:16px; margin:14px 0;
+}
+.price-box .label{ font-size:12px; color:var(--muted); margin-bottom:4px; }
+.price-box .amount{ font-size:19px; font-weight:800; color:var(--accent); }
 
-    .price-panel {
-      border: 1px solid var(--border); border-radius: 16px;
-      padding: 22px; text-align: center; margin: 22px 0;
-      background: linear-gradient(180deg, var(--accent-dim), transparent);
-    }
-    .price-panel .label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    .price-panel .amount { font-size: 32px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-    .price-panel .unit { font-size: 14px; color: var(--muted); font-weight: 500; }
+.section-title{ font-size:13px; color:var(--muted); margin:18px 0 8px; }
 
-    button.primary {
-      width: 100%; padding: 15px; font-size: 15px; font-weight: 600;
-      border-radius: 12px; border: none; background: var(--accent);
-      color: #06231e; font-family: inherit; cursor: pointer;
-    }
-    .msg { font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
-    .msg.error { color: var(--danger); }
-    .msg.success { color: var(--accent); }
+/* success screen */
+.success-wrap{ text-align:center; padding:70px 20px; }
+.check{
+  width:84px; height:84px; margin:0 auto 20px; border-radius:50%;
+  background:var(--success); display:flex; align-items:center; justify-content:center;
+}
+.success-wrap h2{ font-size:18px; margin:0 0 30px; }
 
-    .rtl { direction: rtl; }
-  </style>
+/* account */
+.profile-card{
+  display:flex; align-items:center; gap:12px;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:16px; margin-top:10px;
+}
+.avatar{
+  width:50px; height:50px; border-radius:50%; background:var(--accent);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:18px; font-weight:700;
+}
+.profile-card .name{ font-weight:700; font-size:15px; }
+.profile-card .username{ font-size:12px; color:var(--muted); }
+
+.plan-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:16px; margin-top:14px;
+}
+.plan-card .top{ display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.badge{
+  display:flex; align-items:center; gap:6px; background:var(--accent-dim);
+  color:var(--accent); font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px;
+}
+.plan-stats{ display:flex; gap:10px; }
+.stat{
+  flex:1; background:var(--bg); border-radius:10px; padding:10px; text-align:center;
+}
+.stat .n{ font-weight:700; font-size:13px; }
+.stat .l{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+/* wallet */
+.balance-card{
+  background:linear-gradient(135deg,var(--accent),#ff9a5c);
+  border-radius:16px; padding:22px; color:#fff; margin-top:10px;
+}
+.balance-card .l{ font-size:12px; opacity:.9; margin-bottom:6px; }
+.balance-card .a{ font-size:26px; font-weight:800; }
+.topup-row{ display:flex; gap:8px; margin-top:14px; }
+.topup-row input{
+  flex:1; padding:13px 14px; border-radius:12px; border:1px solid var(--border);
+  background:var(--surface); font-family:inherit; font-size:14px; color:var(--text);
+}
+.topup-row button{
+  padding:0 18px; border-radius:12px; border:none; background:var(--accent);
+  color:#fff; font-weight:700; font-family:inherit; cursor:pointer;
+}
+
+/* bottom nav */
+.bottom-nav{
+  position:fixed; bottom:0; left:0; right:0; background:var(--surface);
+  border-top:1px solid var(--border); display:flex; padding:10px 0 14px; z-index:10;
+}
+.bottom-nav .tab{
+  flex:1; text-align:center; background:none; border:none; font-family:inherit;
+  color:var(--muted); font-size:11px; cursor:pointer;
+}
+.bottom-nav .tab .ic{ font-size:19px; display:block; margin-bottom:3px; }
+.bottom-nav .tab.active{ color:var(--accent); }
+</style>
 </head>
 <body>
-  <div class="wrap">
 
-    <div id="lang-screen">
-      <div class="mark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#35e0c0" stroke-width="2">
-          <path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z"/>
-        </svg>
-      </div>
-      <h1>VPN Store</h1>
-      <p>Choose your language</p>
-      <button class="lang-btn" onclick="setLanguage('en')">English</button>
-      <button class="lang-btn" onclick="setLanguage('fa')">فارسی</button>
-    </div>
-
-    <div id="name-screen">
-      <div class="status"><span class="dot"></span><span id="status-text">Secure connection</span></div>
-      <h1 class="title" id="name-title">What is your name?</h1>
-      <div class="field">
-        <input type="text" id="user-name" placeholder="">
-      </div>
-      <button class="primary" onclick="submitName()" id="btn-name-continue">Continue</button>
-    </div>
-
-    <div id="main-screen">
-      <div class="status"><span class="dot"></span><span id="status-text-2">Secure connection</span></div>
-
-      <div class="greeting" id="greeting"></div>
-
-      <div class="wallet">
-        <div>
-          <div class="balance-label" id="wallet-label">Wallet Balance</div>
-          <div class="balance-amount"><span id="wallet-amount">0</span> <span id="wallet-unit">Toman</span></div>
-        </div>
-        <button onclick="toggleTopup()" id="btn-topup">+</button>
-      </div>
-
-      <div class="topup-row" id="topup-row">
-        <input type="number" id="topup-input" placeholder="0" min="0">
-        <button onclick="topUp()" id="btn-topup-confirm">+</button>
-      </div>
-
-      <h1 class="title" id="title">Buy VPN Account</h1>
-
-      <div class="field">
-        <label id="label-country">Country</label>
-        <div class="select-wrap">
-          <select id="country">
-            <option value="Poland">🇵🇱 Poland</option>
-            <option value="Netherlands">🇳🇱 Netherlands</option>
-            <option value="Germany">🇩🇪 Germany</option>
-            <option value="Turkey">🇹🇷 Turkey</option>
-            <option value="Finland">🇫🇮 Finland</option>
-          </select>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </div>
-      </div>
-
-      <div class="field">
-        <label id="label-months">Months</label>
-        <input type="number" id="months" value="1" min="1" max="36">
-      </div>
-
-      <div class="field">
-        <label id="label-gb">Data (GB)</label>
-        <input type="number" id="gb" value="10" min="1" max="1000">
-      </div>
-
-      <div class="price-panel">
-        <div class="label" id="label-total">Total Price</div>
-        <div class="amount"><span id="price">0</span></div>
-        <div class="unit" id="label-toman">Toman</div>
-      </div>
-
-      <button class="primary" onclick="buyNow()" id="btn-calc">Calculate</button>
-      <div class="msg" id="buy-msg"></div>
-    </div>
-
+<div class="screen active" id="screen-home">
+  <div class="hero">
+    <div class="shield">🛡️</div>
+    <h1 id="home-title">VPN سریع و امن</h1>
+    <p id="home-sub">با ما تمام وبسایت‌ها و برنامه‌ها را بدون محدودیت، با امنیت بالا تجربه کنید</p>
+    <button class="btn" onclick="navigate('screen-buy', texts[lang].buyTitle)" id="home-buy-btn">خرید</button>
   </div>
+</div>
 
-  <script>
-    const pricePerMonth = 50000;
-    const pricePerGB = 3000;
-    let walletBalance = 0;
-    let userName = "";
+<div class="screen" id="screen-buy">
+  <div class="appbar"><button class="back" onclick="goBack()">›</button><h2 id="buy-header">خرید VPN</h2></div>
+  <div style="padding:0 16px;">
+    <div class="row" onclick="navigate('screen-packages', texts[lang].packagesTitle)">
+      <div class="left"><div class="icon">🎁</div><div><div class="label" id="lbl-packages">بسته‌های ویژه VPN</div></div></div>
+      <div class="chev">‹</div>
+    </div>
+    <div class="row" onclick="navigate('screen-country', texts[lang].countryTitle)">
+      <div class="left"><div class="icon" id="country-flag">🇵🇱</div><div><div class="label" id="country-name">لهستان</div></div></div>
+      <div class="chev">‹</div>
+    </div>
 
-    const texts = {
-      en: {
-        status: "Secure connection",
-        title: "Buy VPN Account",
-        country: "Country",
-        months: "Months",
-        gb: "Data (GB)",
-        total: "Total Price",
-        toman: "Toman",
-        calc: "Calculate",
-        nameTitle: "What is your name?",
-        namePlaceholder: "Enter your name",
-        continueBtn: "Continue",
-        walletLabel: "Wallet Balance",
-        insufficient: "Insufficient balance. Please top up.",
-        purchased: "Purchase successful!",
-        hi: "Hi"
-      },
-      fa: {
-        status: "اتصال امن",
-        title: "خرید اکانت وی‌پی‌ان",
-        country: "کشور",
-        months: "تعداد ماه",
-        gb: "حجم (گیگابایت)",
-        total: "قیمت کل",
-        toman: "تومان",
-        calc: "محاسبه",
-        nameTitle: "نام شما چیست؟",
-        namePlaceholder: "نام خود را وارد کنید",
-        continueBtn: "ادامه",
-        walletLabel: "موجودی کیف پول",
-        insufficient: "موجودی کافی نیست. لطفاً شارژ کنید.",
-        purchased: "خرید با موفقیت انجام شد!",
-        hi: "سلام"
-      }
-    };
+    <div class="stepper-field">
+      <div class="meta">📅 <span id="lbl-days">مدت زمان</span></div>
+      <div class="stepper">
+        <button onclick="changeDays(1)">+</button>
+        <span class="val" id="days-val">7 <span id="unit-days">روز</span></span>
+        <button onclick="changeDays(-1)">−</button>
+      </div>
+    </div>
 
-    let currentLang = "en";
+    <div class="stepper-field">
+      <div class="meta">🗄️ <span id="lbl-gb">حجم وی پی ان</span></div>
+      <div class="stepper">
+        <button onclick="changeGB(1)">+</button>
+        <span class="val" id="gb-val">5 <span id="unit-gb">گیگ</span></span>
+        <button onclick="changeGB(-1)">−</button>
+      </div>
+    </div>
 
-    function setLanguage(lang) {
-      currentLang = lang;
-      const t = texts[lang];
+    <div class="price-box">
+      <div><div class="label" id="lbl-price">قیمت</div><div class="amount" id="buy-price">۰ تومان</div></div>
+      💳
+    </div>
 
-      document.getElementById("name-title").textContent = t.nameTitle;
-      document.getElementById("user-name").placeholder = t.namePlaceholder;
-      document.getElementById("btn-name-continue").textContent = t.continueBtn;
-      document.getElementById("status-text").textContent = t.status;
-      document.getElementById("status-text-2").textContent = t.status;
+    <button class="btn" onclick="goToPayment('screen-buy')" id="btn-continue">ادامه و پرداخت</button>
+  </div>
+</div>
 
-      document.getElementById("title").textContent = t.title;
-      document.getElementById("label-country").textContent = t.country;
-      document.getElementById("label-months").textContent = t.months;
-      document.getElementById("label-gb").textContent = t.gb;
-      document.getElementById("label-total").textContent = t.total;
-      document.getElementById("label-toman").textContent = t.toman;
-      document.getElementById("btn-calc").textContent = t.calc;
-      document.getElementById("wallet-label").textContent = t.walletLabel;
-      document.getElementById("wallet-unit").textContent = t.toman;
+<div class="screen" id="screen-country">
+  <div class="appbar"><button class="back" onclick="goBack()">›</button><h2 id="country-header">انتخاب کشور</h2></div>
+  <div style="padding:0 16px;" id="country-list"></div>
+  <div style="padding:0 16px;"><button class="btn" onclick="goBack()" id="btn-confirm-country">تأیید کشور</button></div>
+</div>
 
-      const nameScreen = document.getElementById("name-screen");
-      const mainScreen = document.getElementById("main-screen");
+<div class="screen" id="screen-packages">
+  <div class="appbar"><button class="back" onclick="goBack()">›</button><h2 id="packages-header">بسته‌های ویژه VPN</h2></div>
+  <div style="padding:0 16px;" id="packages-list"></div>
+</div>
 
-      if (lang === "fa") {
-        nameScreen.classList.add("rtl");
-        mainScreen.classList.add("rtl");
-      } else {
-        nameScreen.classList.remove("rtl");
-        mainScreen.classList.remove("rtl");
-      }
+<div class="screen" id="screen-package-details">
+  <div class="appbar"><button class="back" onclick="goBack()">›</button><h2 id="pkg-header">جزئیات بسته</h2></div>
+  <div style="padding:0 16px;">
+    <div class="row">
+      <div class="left"><div class="icon" id="pkg-flag">🇵🇱</div><div><div class="label" id="pkg-country">لهستان</div></div></div>
+    </div>
+    <div class="stepper-field"><div class="meta">📅 <span id="pkg-lbl-days">مدت زمان</span></div><div class="val" id="pkg-days">۷ روز</div></div>
+    <div class="stepper-field"><div class="meta">🗄️ <span id="pkg-lbl-gb">حجم وی پی ان</span></div><div class="val" id="pkg-gb">۵ گیگ</div></div>
+    <div class="price-box"><div><div class="label" id="pkg-lbl-price">قیمت</div><div class="amount" id="pkg-price">۰ تومان</div></div>💳</div>
+    <button class="btn" onclick="goToPayment('screen-package-details')" id="btn-pkg-continue">ادامه پرداخت</button>
+  </div>
+</div>
 
-      document.getElementById("lang-screen").style.display = "none";
-      nameScreen.style.display = "block";
+<div class="screen" id="screen-payment">
+  <div class="appbar"><button class="back" onclick="goBack()">›</button><h2 id="payment-header">روش پرداخت</h2></div>
+  <div style="padding:0 16px;">
+    <div class="row selected" id="pay-wallet" onclick="selectPayment('wallet')">
+      <div class="left"><div class="icon">👛</div><div><div class="label" id="lbl-pay-wallet">کیف پول</div><div class="sub" id="pay-wallet-sub">موجودی حساب تومان</div></div></div>
+      <div class="radio on" id="radio-wallet"></div>
+    </div>
+    <div class="row" id="pay-online" onclick="selectPayment('online')">
+      <div class="left"><div class="icon">💳</div><div><div class="label" id="lbl-pay-online">پرداخت آنلاین</div></div></div>
+      <div class="radio" id="radio-online"></div>
+    </div>
+    <div class="price-box"><div><div class="label" id="lbl-pay-price">قیمت</div><div class="amount" id="payment-price">۰ تومان</div></div>👛</div>
+    <button class="btn" onclick="confirmPayment()" id="btn-pay">پرداخت</button>
+    <div class="msg" id="pay-msg" style="font-size:13px;text-align:center;margin-top:10px;color:#ef4444;"></div>
+  </div>
+</div>
+
+<div class="screen" id="screen-success">
+  <div class="success-wrap">
+    <div class="check">✓</div>
+    <h2 id="success-title">پرداخت موفق بود</h2>
+    <button class="btn" onclick="goHome()" id="btn-back-home">بازگشت به خانه</button>
+  </div>
+</div>
+
+<div class="screen" id="screen-wallet">
+  <div class="appbar"><h2 id="wallet-header">کیف پول</h2></div>
+  <div style="padding:0 16px;">
+    <div class="balance-card">
+      <div class="l" id="wallet-balance-label">موجودی کیف پول</div>
+      <div class="a"><span id="wallet-balance-amount">0</span> <span id="wallet-toman">تومان</span></div>
+    </div>
+    <div class="topup-row">
+      <input type="number" id="topup-input" placeholder="مبلغ شارژ" min="0">
+      <button onclick="topUp()" id="btn-topup">شارژ</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-account">
+  <div class="appbar"><h2 id="account-header">حساب کاربری</h2></div>
+  <div style="padding:0 16px;">
+    <div class="profile-card">
+      <div class="avatar" id="avatar-letter">؟</div>
+      <div>
+        <div class="name" id="account-name">کاربر</div>
+        <div class="username" id="account-username"></div>
+      </div>
+    </div>
+    <div class="plan-card" id="plan-card" style="display:none;">
+      <div class="top">
+        <span class="badge">✓ <span id="plan-active-text">پلن فعال</span></span>
+        <span style="font-size:12px;color:var(--muted);" id="plan-days-left"></span>
+      </div>
+      <div class="plan-stats">
+        <div class="stat"><div class="n" id="plan-country">—</div><div class="l" id="plan-country-label">اتصال به کشور</div></div>
+        <div class="stat"><div class="n" id="plan-gb-left">—</div><div class="l" id="plan-gb-label">حجم باقی‌مانده</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav" id="bottom-nav">
+  <button class="tab active" data-tab="home" onclick="goTab('home')"><span class="ic">🏠</span><span id="nav-home">خانه</span></button>
+  <button class="tab" data-tab="wallet" onclick="goTab('wallet')"><span class="ic">👛</span><span id="nav-wallet">کیف پول</span></button>
+  <button class="tab" data-tab="account" onclick="goTab('account')"><span class="ic">👤</span><span id="nav-account">حساب کاربری</span></button>
+</div>
+
+<script>
+const pricePerDay = 4000;
+const pricePerGB = 4000;
+let lang = "fa";
+let days = 7, gb = 5;
+let walletBalance = 0;
+let paymentMethod = "wallet";
+let stack = [];
+let selectedCountryId = "Poland";
+let selectedPackage = null;
+let hasActivePlan = false;
+
+const countries = [
+  { id:"Poland", flag:"🇵🇱", fa:"لهستان", en:"Poland" },
+  { id:"Netherlands", flag:"🇳🇱", fa:"هلند", en:"Netherlands" },
+  { id:"Germany", flag:"🇩🇪", fa:"آلمان", en:"Germany" },
+  { id:"Turkey", flag:"🇹🇷", fa:"ترکیه", en:"Turkey" },
+  { id:"Finland", flag:"🇫🇮", fa:"فنلاند", en:"Finland" }
+];
+
+const texts = {
+  fa: {
+    dir:"rtl", homeTitle:"VPN سریع و امن",
+    homeSub:"با ما تمام وبسایت‌ها و برنامه‌ها را بدون محدودیت، با امنیت بالا تجربه کنید",
+    buy:"خرید", buyTitle:"خرید VPN", packagesTitle:"بسته‌های ویژه VPN", countryTitle:"انتخاب کشور",
+    packagesRow:"بسته‌های ویژه VPN", days:"مدت زمان", gb:"حجم وی پی ان", dayUnit:"روز", gbUnit:"گیگ",
+    price:"قیمت", toman:"تومان", continueBtn:"ادامه و پرداخت", confirmCountry:"تأیید کشور",
+    pkgContinue:"ادامه پرداخت", paymentTitle:"روش پرداخت", wallet:"کیف پول", walletSub:"موجودی حساب",
+    online:"پرداخت آنلاین", pay:"پرداخت", insufficient:"موجودی کافی نیست. لطفاً کیف پول را شارژ کنید.",
+    successTitle:"پرداخت موفق بود", backHome:"بازگشت به خانه", walletHeader:"کیف پول",
+    walletBalance:"موجودی کیف پول", topupPlaceholder:"مبلغ شارژ", topupBtn:"شارژ",
+    accountHeader:"حساب کاربری", planActive:"پلن فعال", connectTo:"اتصال به کشور", remaining:"حجم باقی‌مانده",
+    navHome:"خانه", navWallet:"کیف پول", navAccount:"حساب کاربری", guest:"کاربر"
+  },
+  en: {
+    dir:"ltr", homeTitle:"Fast & Secure VPN",
+    homeSub:"Access every site and app without limits, with top-tier security",
+    buy:"Buy", buyTitle:"Buy VPN", packagesTitle:"Special Packages", countryTitle:"Select Country",
+    packagesRow:"Special VPN Packages", days:"Duration", gb:"Data Volume", dayUnit:"days", gbUnit:"GB",
+    price:"Price", toman:"Toman", continueBtn:"Continue to Payment", confirmCountry:"Confirm Country",
+    pkgContinue:"Continue to Payment", paymentTitle:"Payment Method", wallet:"Wallet", walletSub:"Account balance",
+    online:"Online Payment", pay:"Pay", insufficient:"Insufficient balance. Please top up your wallet.",
+    successTitle:"Payment Successful", backHome:"Back to Home", walletHeader:"Wallet",
+    walletBalance:"Wallet Balance", topupPlaceholder:"Top-up amount", topupBtn:"Top Up",
+    accountHeader:"Account", planActive:"Active Plan", connectTo:"Connected to", remaining:"Data left",
+    navHome:"Home", navWallet:"Wallet", navAccount:"Account", guest:"Guest"
+  }
+};
+
+function fmt(n){ return n.toLocaleString(); }
+
+function applyTexts(){
+  const t = texts[lang];
+  document.body.style.direction = t.dir;
+  document.getElementById("home-title").textContent = t.homeTitle;
+  document.getElementById("home-sub").textContent = t.homeSub;
+  document.getElementById("home-buy-btn").textContent = t.buy;
+  document.getElementById("buy-header").textContent = t.buyTitle;
+  document.getElementById("lbl-packages").textContent = t.packagesRow;
+  document.getElementById("lbl-days").textContent = t.days;
+  document.getElementById("lbl-gb").textContent = t.gb;
+  document.getElementById("unit-days").textContent = t.dayUnit;
+  document.getElementById("unit-gb").textContent = t.gbUnit;
+  document.getElementById("lbl-price").textContent = t.price;
+  document.getElementById("btn-continue").textContent = t.continueBtn;
+  document.getElementById("country-header").textContent = t.countryTitle;
+  document.getElementById("btn-confirm-country").textContent = t.confirmCountry;
+  document.getElementById("packages-header").textContent = t.packagesTitle;
+  document.getElementById("pkg-lbl-days").textContent = t.days;
+  document.getElementById("pkg-lbl-gb").textContent = t.gb;
+  document.getElementById("pkg-lbl-price").textContent = t.price;
+  document.getElementById("btn-pkg-continue").textContent = t.pkgContinue;
+  document.getElementById("payment-header").textContent = t.paymentTitle;
+  document.getElementById("lbl-pay-wallet").textContent = t.wallet;
+  document.getElementById("pay-wallet-sub").textContent = t.walletSub + " " + t.toman;
+  document.getElementById("lbl-pay-online").textContent = t.online;
+  document.getElementById("lbl-pay-price").textContent = t.price;
+  document.getElementById("btn-pay").textContent = t.pay;
+  document.getElementById("success-title").textContent = t.successTitle;
+  document.getElementById("btn-back-home").textContent = t.backHome;
+  document.getElementById("wallet-header").textContent = t.walletHeader;
+  document.getElementById("wallet-balance-label").textContent = t.walletBalance;
+  document.getElementById("wallet-toman").textContent = t.toman;
+  document.getElementById("topup-input").placeholder = t.topupPlaceholder;
+  document.getElementById("btn-topup").textContent = t.topupBtn;
+  document.getElementById("account-header").textContent = t.accountHeader;
+  document.getElementById("plan-active-text").textContent = t.planActive;
+  document.getElementById("plan-country-label").textContent = t.connectTo;
+  document.getElementById("plan-gb-label").textContent = t.remaining;
+  document.getElementById("nav-home").textContent = t.navHome;
+  document.getElementById("nav-wallet").textContent = t.navWallet;
+  document.getElementById("nav-account").textContent = t.navAccount;
+
+  renderCountryList();
+  renderPackagesList();
+  updateBuyPrice();
+}
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("bottom-nav").style.display =
+    (id === "screen-home" || id === "screen-wallet" || id === "screen-account") ? "flex" : "none";
+}
+
+function navigate(id){
+  stack.push(currentScreen());
+  showScreen(id);
+}
+function currentScreen(){
+  return document.querySelector(".screen.active").id;
+}
+function goBack(){
+  const prev = stack.pop() || "screen-home";
+  showScreen(prev);
+}
+function goHome(){
+  stack = [];
+  goTab("home");
+}
+function goTab(tab){
+  stack = [];
+  document.querySelectorAll(".bottom-nav .tab").forEach(b => b.classList.remove("active"));
+  document.querySelector('.bottom-nav .tab[data-tab="' + tab + '"]').classList.add("active");
+  showScreen("screen-" + tab);
+  if (tab === "wallet") updateWalletUI();
+  if (tab === "account") updateAccountUI();
+}
+
+function renderCountryList(){
+  const list = document.getElementById("country-list");
+  list.innerHTML = "";
+  countries.forEach(c => {
+    const row = document.createElement("div");
+    row.className = "row" + (c.id === selectedCountryId ? " selected" : "");
+    row.onclick = () => { selectedCountryId = c.id; renderCountryList(); updateBuyCountryRow(); };
+    row.innerHTML =
+      '<div class="left"><div class="icon">' + c.flag + '</div><div class="label">' + c[lang] + '</div></div>' +
+      '<div class="radio' + (c.id === selectedCountryId ? " on" : "") + '"></div>';
+    list.appendChild(row);
+  });
+}
+
+function updateBuyCountryRow(){
+  const c = countries.find(x => x.id === selectedCountryId);
+  document.getElementById("country-flag").textContent = c.flag;
+  document.getElementById("country-name").textContent = c[lang];
+}
+
+function changeDays(delta){
+  days = Math.max(1, Math.min(90, days + delta));
+  document.getElementById("days-val").firstChild.textContent = days + " ";
+  updateBuyPrice();
+}
+function changeGB(delta){
+  gb = Math.max(1, Math.min(200, gb + delta));
+  document.getElementById("gb-val").firstChild.textContent = gb + " ";
+  updateBuyPrice();
+}
+function currentTotal(){ return days * pricePerDay + gb * pricePerGB; }
+function updateBuyPrice(){
+  document.getElementById("buy-price").textContent = fmt(currentTotal()) + " " + texts[lang].toman;
+}
+
+function renderPackagesList(){
+  const list = document.getElementById("packages-list");
+  list.innerHTML = "";
+  countries.forEach(c => {
+    const price = 7 * pricePerDay + 5 * pricePerGB;
+    const row = document.createElement("div");
+    row.className = "row";
+    row.onclick = () => openPackage(c, 7, 5, price);
+    row.innerHTML =
+      '<div class="left"><div class="icon">' + c.flag + '</div><div><div class="label">' + c[lang] + '</div>' +
+      '<div class="sub">' + 7 + ' ' + texts[lang].dayUnit + ' - ' + 5 + ' ' + texts[lang].gbUnit + ' - ' + fmt(price) + ' ' + texts[lang].toman + '</div></div></div>' +
+      '<div class="chev">‹</div>';
+    list.appendChild(row);
+  });
+}
+
+function openPackage(c, d, g, price){
+  selectedPackage = { country: c, days: d, gb: g, price: price };
+  document.getElementById("pkg-flag").textContent = c.flag;
+  document.getElementById("pkg-country").textContent = c[lang];
+  document.getElementById("pkg-days").textContent = d + " " + texts[lang].dayUnit;
+  document.getElementById("pkg-gb").textContent = g + " " + texts[lang].gbUnit;
+  document.getElementById("pkg-price").textContent = fmt(price) + " " + texts[lang].toman;
+  navigate("screen-package-details");
+}
+
+function selectPayment(method){
+  paymentMethod = method;
+  document.getElementById("pay-wallet").classList.toggle("selected", method === "wallet");
+  document.getElementById("pay-online").classList.toggle("selected", method === "online");
+  document.getElementById("radio-wallet").classList.toggle("on", method === "wallet");
+  document.getElementById("radio-online").classList.toggle("on", method === "online");
+}
+
+function goToPayment(fromScreen){
+  const total = fromScreen === "screen-package-details" ? selectedPackage.price : currentTotal();
+  document.getElementById("payment-price").textContent = fmt(total) + " " + texts[lang].toman;
+  document.getElementById("pay-msg").textContent = "";
+  navigate("screen-payment");
+}
+
+function confirmPayment(){
+  const total = selectedPackage && currentScreenBeforePaymentIsPackage()
+    ? selectedPackage.price : currentTotal();
+  const msg = document.getElementById("pay-msg");
+
+  if (paymentMethod === "wallet") {
+    if (walletBalance < total) {
+      msg.textContent = texts[lang].insufficient;
+      return;
     }
+    walletBalance -= total;
+  }
 
-    function submitName() {
-      const name = document.getElementById("user-name").value;
-      if (!name) return;
-      userName = name;
-      document.getElementById("greeting").textContent = texts[currentLang].hi + ", " + userName + " 👋";
-      document.getElementById("name-screen").style.display = "none";
-      document.getElementById("main-screen").style.display = "block";
-    }
+  hasActivePlan = true;
+  msg.textContent = "";
+  stack = [];
+  showScreen("screen-success");
+}
+function currentScreenBeforePaymentIsPackage(){
+  return stack.includes("screen-package-details") && !stack.includes("screen-buy");
+}
 
-    function checkLanguageFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      const lang = params.get("lang");
-      if (lang === "fa" || lang === "en") {
-        setLanguage(lang);
-      }
-    }
-    checkLanguageFromURL();
+function updateWalletUI(){
+  document.getElementById("wallet-balance-amount").textContent = fmt(walletBalance);
+}
+function topUp(){
+  const amount = parseInt(document.getElementById("topup-input").value) || 0;
+  if (amount <= 0) return;
+  walletBalance += amount;
+  document.getElementById("topup-input").value = "";
+  updateWalletUI();
+}
 
-    function toggleTopup() {
-      const row = document.getElementById("topup-row");
-      row.style.display = row.style.display === "flex" ? "none" : "flex";
-    }
+function updateAccountUI(){
+  const tgUser = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe)
+    ? window.Telegram.WebApp.initDataUnsafe.user : null;
+  const name = tgUser && tgUser.first_name ? tgUser.first_name : texts[lang].guest;
+  const username = tgUser && tgUser.username ? "@" + tgUser.username : "";
+  document.getElementById("account-name").textContent = name;
+  document.getElementById("account-username").textContent = username;
+  document.getElementById("avatar-letter").textContent = name.charAt(0).toUpperCase();
 
-    function topUp() {
-      const amount = parseInt(document.getElementById("topup-input").value) || 0;
-      if (amount <= 0) return;
-      walletBalance += amount;
-      document.getElementById("wallet-amount").textContent = walletBalance.toLocaleString();
-      document.getElementById("topup-input").value = "";
-      document.getElementById("topup-row").style.display = "none";
-    }
+  const planCard = document.getElementById("plan-card");
+  if (hasActivePlan && selectedPackage) {
+    planCard.style.display = "block";
+    document.getElementById("plan-days-left").textContent = selectedPackage.days + " " + texts[lang].dayUnit;
+    document.getElementById("plan-country").textContent = selectedPackage.country[lang];
+    document.getElementById("plan-gb-left").textContent = selectedPackage.gb + " " + texts[lang].gbUnit;
+  } else {
+    planCard.style.display = "none";
+  }
+}
 
-    function calculateTotal() {
-      const months = parseInt(document.getElementById("months").value) || 0;
-      const gb = parseInt(document.getElementById("gb").value) || 0;
-      return (months * pricePerMonth) + (gb * pricePerGB);
-    }
+function checkLanguageFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  const l = params.get("lang");
+  if (l === "fa" || l === "en") lang = l;
+}
 
-    function buyNow() {
-      const total = calculateTotal();
-      document.getElementById("price").textContent = total.toLocaleString();
-
-      const t = texts[currentLang];
-      const msgEl = document.getElementById("buy-msg");
-
-      if (walletBalance < total) {
-        msgEl.textContent = t.insufficient;
-        msgEl.className = "msg error";
-      } else {
-        walletBalance -= total;
-        document.getElementById("wallet-amount").textContent = walletBalance.toLocaleString();
-        msgEl.textContent = t.purchased;
-        msgEl.className = "msg success";
-      }
-    }
-  </script>
+checkLanguageFromURL();
+applyTexts();
+updateBuyCountryRow();
+</script>
 </body>
 </html>
